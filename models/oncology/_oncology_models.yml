@@ -1,0 +1,109 @@
+version: 2
+
+models:
+  # Staging Models
+  - name: stg_oncology_conditions
+    description: >
+      Staging model that filters core__condition to ICD-10 neoplasm codes (C00-D49).
+      Classifies each condition into a cancer_type based on ICD-10 code ranges.
+    columns:
+      - name: condition_id
+        description: Unique identifier for the condition
+      - name: person_id
+        description: Patient identifier
+      - name: normalized_code
+        description: Normalized ICD-10 diagnosis code
+      - name: cancer_type
+        description: >
+          Cancer type classification (e.g., Breast, Hematologic, Digestive Organs)
+          derived from ICD-10 code ranges
+
+  - name: stg_oncology_claims
+    description: >
+      Staging model that filters core__medical_claim to only claims 
+      for patients in the oncology cohort.
+    columns:
+      - name: medical_claim_id
+        description: Unique identifier for the claim line
+      - name: person_id
+        description: Patient identifier
+      - name: paid_amount
+        description: Amount paid by payer
+
+  # Intermediate Models
+  - name: int_oncology_cohort
+    description: >
+      Identifies patients with active cancer using the 2+ claims rule.
+      Assigns primary cancer type based on most frequent diagnosis.
+    columns:
+      - name: person_id
+        description: Patient identifier
+        tests:
+          - unique
+      - name: primary_cancer_type
+        description: Most common cancer type for this patient
+      - name: cancer_claim_count
+        description: Number of distinct claims with cancer diagnoses
+      - name: cohort_name
+        description: Cohort identifier (Active Oncology)
+
+  - name: int_oncology_financials
+    description: >
+      Cost breakdown by care setting and cancer type for oncology patients.
+      Includes spend bucket segmentation.
+    columns:
+      - name: person_id
+        description: Patient identifier
+      - name: primary_cancer_type
+        description: Patient's primary cancer type
+      - name: care_setting
+        description: Care setting from service_category_1 (Inpatient, Outpatient, etc.)
+      - name: total_paid
+        description: Total paid amount for this patient/care setting combination
+      - name: spend_bucket
+        description: Cost segmentation (High Cost, Medium Cost, Low Cost, Minimal Cost)
+      - name: spend_quartile
+        description: Spend quartile (1-4) based on patient total spend
+
+  # Mart Models
+  - name: fact_oncology_patient_detail
+    description: >
+      Patient-level detail mart with full ICD-10 code traceability.
+      Includes all cancer codes, spend by care setting, and cost metrics per patient.
+    columns:
+      - name: person_id
+        description: Patient identifier
+        tests:
+          - unique
+      - name: all_cancer_codes
+        description: Array of all distinct ICD-10 cancer codes for this patient
+      - name: all_cancer_descriptions
+        description: Array of all distinct cancer code descriptions
+      - name: primary_cancer_type
+        description: Most common cancer type for this patient
+      - name: total_paid
+        description: Total paid amount across all claims
+      - name: spend_bucket
+        description: Cost tier segmentation
+
+  - name: fact_oncology_cost_analytics
+    description: >
+      Final analytics mart aggregating oncology costs by care setting, 
+      cancer type, and spend bucket. Ready for BI consumption.
+    columns:
+      - name: care_setting
+        description: Care setting (Inpatient, Outpatient, Emergency, etc.)
+      - name: primary_cancer_type
+        description: Cancer type category
+      - name: spend_bucket
+        description: Cost tier segmentation
+      - name: patient_count
+        description: Number of unique patients
+      - name: total_paid_amount
+        description: Sum of paid amounts
+      - name: pct_of_total_paid
+        description: Percentage of total oncology spend
+      - name: paid_per_patient
+        description: Average paid amount per patient
+      - name: claims_per_patient
+        description: Average number of claims per patient
