@@ -107,3 +107,112 @@ models:
         description: Average paid amount per patient
       - name: claims_per_patient
         description: Average number of claims per patient
+
+  # Star Schema Dimensions
+  - name: dim_cancer_type
+    description: >
+      Reference dimension for cancer type classification based on ICD-10 ranges.
+      Includes 21 categories covering malignant, benign, in situ, and uncertain behavior neoplasms.
+    columns:
+      - name: cancer_type_key
+        description: Surrogate key for cancer type
+        tests:
+          - unique
+          - not_null
+      - name: cancer_type_name
+        description: Display name for the cancer type category
+      - name: icd10_range_start
+        description: Start of ICD-10 code range (inclusive)
+      - name: icd10_range_end
+        description: End of ICD-10 code range (exclusive)
+      - name: category
+        description: Behavior category (Malignant, Benign, In Situ, Uncertain, Unspecified)
+      - name: sort_order
+        description: Display order for reporting
+
+  - name: dim_care_setting
+    description: >
+      Reference dimension for care settings derived from Tuva's service_category_1.
+    columns:
+      - name: care_setting_key
+        description: Surrogate key for care setting
+        tests:
+          - unique
+          - not_null
+      - name: care_setting_code
+        description: Original code from service_category_1
+      - name: care_setting_name
+        description: Display name for the care setting
+      - name: sort_order
+        description: Display order for reporting
+
+  - name: dim_spend_bucket
+    description: >
+      Reference dimension for patient spend tier segmentation.
+      Thresholds: High >$100k, Medium $25k-$100k, Low $5k-$25k, Minimal <$5k.
+    columns:
+      - name: spend_bucket_key
+        description: Surrogate key for spend bucket
+        tests:
+          - unique
+          - not_null
+      - name: spend_bucket_name
+        description: Display name for the spend tier
+      - name: min_threshold
+        description: Minimum spend amount for this bucket (inclusive)
+      - name: max_threshold
+        description: Maximum spend amount for this bucket (inclusive, null for highest tier)
+      - name: sort_order
+        description: Display order for reporting (1=highest spend)
+
+  - name: dim_patient
+    description: >
+      Patient dimension for oncology cohort. Contains patient-level attributes
+      including all cancer codes for ICD-10 traceability.
+    columns:
+      - name: person_id
+        description: Patient identifier (natural key)
+        tests:
+          - unique
+          - not_null
+      - name: cohort_name
+        description: Cohort identifier (Active Oncology)
+      - name: primary_cancer_type
+        description: Most common cancer type for this patient
+      - name: cancer_claim_count
+        description: Number of distinct claims with cancer diagnoses
+      - name: most_recent_diagnosis_date
+        description: Date of most recent cancer diagnosis
+      - name: all_cancer_codes
+        description: Array of all distinct ICD-10 cancer codes for this patient
+      - name: all_cancer_descriptions
+        description: Array of all distinct cancer code descriptions
+
+  # Star Schema Fact
+  - name: fact_oncology_cost
+    description: >
+      Fact table for oncology cost analysis. Grain is patient + cancer_type + care_setting.
+      Joins to dim_patient, dim_cancer_type, dim_care_setting, and dim_spend_bucket.
+    columns:
+      - name: person_id
+        description: Patient identifier (FK to dim_patient)
+        tests:
+          - not_null
+      - name: cancer_type_key
+        description: FK to dim_cancer_type
+        tests:
+          - not_null
+      - name: care_setting_key
+        description: FK to dim_care_setting
+        tests:
+          - not_null
+      - name: spend_bucket_key
+        description: FK to dim_spend_bucket
+      - name: paid_amount
+        description: Total paid amount for this combination
+      - name: allowed_amount
+        description: Total allowed amount
+      - name: total_cost_amount
+        description: Total cost amount
+      - name: claim_count
+        description: Number of claims

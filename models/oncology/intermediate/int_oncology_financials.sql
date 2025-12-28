@@ -17,6 +17,7 @@ claims as (
         claim_id,
         claim_start_date,
         service_category_1,
+        service_category_2,
         paid_amount,
         allowed_amount,
         total_cost_amount
@@ -26,19 +27,17 @@ claims as (
 claims_with_cohort as (
     select
         c.person_id,
-        co.primary_cancer_type,
+        c.primary_cancer_type,
         cl.claim_id,
         cl.claim_start_date,
-        coalesce(cl.service_category_1, 'Other') as care_setting,
+        cl.service_category_1 as care_setting,
+        cl.service_category_2 as care_setting_detail,
         coalesce(cl.paid_amount, 0) as paid_amount,
         coalesce(cl.allowed_amount, 0) as allowed_amount,
         coalesce(cl.total_cost_amount, 0) as total_cost_amount
     from cohort c
     inner join claims cl
         on c.person_id = cl.person_id
-    cross join (select 1) co_placeholder
-    left join cohort co
-        on c.person_id = co.person_id
 ),
 
 patient_care_setting_spend as (
@@ -46,12 +45,13 @@ patient_care_setting_spend as (
         person_id,
         primary_cancer_type,
         care_setting,
+        care_setting_detail,
         sum(paid_amount) as total_paid,
         sum(allowed_amount) as total_allowed,
         sum(total_cost_amount) as total_cost,
         count(distinct claim_id) as claim_count
     from claims_with_cohort
-    group by 1, 2, 3
+    group by 1, 2, 3, 4
 ),
 
 patient_total_spend as (
@@ -67,6 +67,7 @@ with_spend_bucket as (
         pcs.person_id,
         pcs.primary_cancer_type,
         pcs.care_setting,
+        pcs.care_setting_detail,
         pcs.total_paid,
         pcs.total_allowed,
         pcs.total_cost,

@@ -1,3 +1,84 @@
+# Oncology Population Cost Analysis
+
+## Project Abstract
+
+This project profiled costs across care settings to identify savings and outcomes opportunities for oncology patients using the [Tuva Project](https://thetuvaproject.com/) healthcare data framework. Cancer is defined by the ICD 10 codes for Neoplasms.
+
+---
+
+## Population Summary
+
+| Metric | Value |
+|--------|-------|
+| Total Patients | 475 |
+| Total Paid | $8.78M |
+| Total Claims | 68,842 |
+| Avg Paid per Patient | $18,490 |
+| Avg Paid per Claim | $127.58 |
+| Avg Claims per Patient | 145 |
+
+---
+
+## Key Insights
+
+### Cost by Care Setting
+
+**Acute inpatient** reflects the highest cost at an average of $10,568/patient, around 4x higher than the next category.
+
+
+**Pharmacy costs** are also notable with regards to claims — outpatient pharmacy alone averages **$987/claim** (highest per-claim cost after inpatient pharmacy at $1,708/claim).
+
+### Spend Distribution by Cancer Type
+
+**Benign Neoplasms** drive the highest total costs, accounting for over **$4.4M** (50%+ of total spend):
+
+
+
+### High Cost Patients
+
+The top 3 highest-cost patients (>$100K each) were all categorized as **Benign Neoplasms**, suggesting potential opportunities for:
+- Care management optimization
+- Outcomes evaluation
+- Medical economics analysis
+
+### Key Observations
+
+1. **Benign ≠ Low Cost**: Despite being non-malignant, benign neoplasm patients incur the highest costs, likely due to chronic monitoring and procedures. There should be a re-evaluation on the cost structure and care provided.
+2. **Pharmacy is a cost driver**: Cross-setting pharmacy costs ($1.2M total) represent a significant portion of spend
+3. **Lab utilization is high**: 474 of 475 patients (99.8%) had lab claims, averaging $1,800/patient
+4. **ED usage is relatively low-cost**: Emergency department averages only $400/patient
+
+### AI Utilization
+
+AI was used to rapidly prototype and accelerate the development of the oncology_analysis.ipynb file for data analysis and aggregation. I mainly steered the AI to resolve how it improperly filled gaps with Nulls instead of investigating the full dataset to find more effective ways to impute. I also used AI to get a sitrep of the repository so I could quickly find the key resources and undestand the base state of the data.
+
+
+
+
+
+
+
+
+
+
+## Setup Steps Below
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [![Apache License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![dbt logo and version](https://img.shields.io/static/v1?logo=dbt&label=dbt-version&message=1.5.x&color=orange)
 
 # The Tuva Project Demo
