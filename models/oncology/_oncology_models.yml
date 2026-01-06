@@ -66,49 +66,8 @@ models:
         description: Spend quartile (1-4) based on patient total spend
 
   # Mart Models
-  - name: fact_oncology_patient_detail
-    description: >
-      Patient-level detail mart with full ICD-10 code traceability.
-      Includes all cancer codes, spend by care setting, and cost metrics per patient.
-    columns:
-      - name: person_id
-        description: Patient identifier
-        tests:
-          - unique
-      - name: all_cancer_codes
-        description: Array of all distinct ICD-10 cancer codes for this patient
-      - name: all_cancer_descriptions
-        description: Array of all distinct cancer code descriptions
-      - name: primary_cancer_type
-        description: Most common cancer type for this patient
-      - name: total_paid
-        description: Total paid amount across all claims
-      - name: spend_bucket
-        description: Cost tier segmentation
 
-  - name: fact_oncology_cost_analytics
-    description: >
-      Final analytics mart aggregating oncology costs by care setting, 
-      cancer type, and spend bucket. Ready for BI consumption.
-    columns:
-      - name: care_setting
-        description: Care setting (Inpatient, Outpatient, Emergency, etc.)
-      - name: primary_cancer_type
-        description: Cancer type category
-      - name: spend_bucket
-        description: Cost tier segmentation
-      - name: patient_count
-        description: Number of unique patients
-      - name: total_paid_amount
-        description: Sum of paid amounts
-      - name: pct_of_total_paid
-        description: Percentage of total oncology spend
-      - name: paid_per_patient
-        description: Average paid amount per patient
-      - name: claims_per_patient
-        description: Average number of claims per patient
-
-  # Star Schema Dimensions
+  # Dimensions
   - name: dim_cancer_type
     description: >
       Reference dimension for cancer type classification based on ICD-10 ranges.
@@ -188,7 +147,7 @@ models:
       - name: all_cancer_descriptions
         description: Array of all distinct cancer code descriptions
 
-  # Star Schema Fact
+  # Fact
   - name: fact_oncology_cost
     description: >
       Fact table for oncology cost analysis. Grain is patient + cancer_type + care_setting.
