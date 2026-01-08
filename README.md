@@ -32,8 +32,6 @@ This project profiled costs across care settings to identify savings and outcome
 
 **Benign Neoplasms** drive the highest total costs, accounting for over **$4.4M** (50%+ of total spend):
 
-
-
 ### High Cost Patients
 
 The top 3 highest-cost patients (>$100K each) were all categorized as **Benign Neoplasms**, suggesting potential opportunities for:
