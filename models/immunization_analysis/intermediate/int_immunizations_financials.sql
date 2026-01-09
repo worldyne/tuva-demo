@@ -25,7 +25,6 @@ claims as (
 cohort_claims as (
     select
         ch.person_id,
-        ch.immunization_id,
         cl.claim_id,
         cl.claim_start_date,
         cl.service_category_1 as care_setting,
@@ -40,15 +39,14 @@ cohort_claims as (
 patient_care_setting_spend as (
     select
         person_id,
-        immunization_id,
         care_setting,
         care_setting_detail,
         sum(paid_amount) as total_paid,
         sum(allowed_amount) as total_allowed,
         sum(total_cost_amount) as total_cost,
         count(distinct claim_id) as claim_count
-    from claims_with_cohort
-    group by person_id, immunization_id, care_setting, care_setting_detail
+    from cohort_claims
+    group by person_id, care_setting, care_setting_detail
 ),
 
 patient_total_spend as (
@@ -56,6 +54,7 @@ patient_total_spend as (
         person_id,
         sum(total_paid) as patient_total_paid
     from patient_care_setting_spend
+    group by person_id
 ),
 
 with_spend_bucket as (
@@ -65,7 +64,6 @@ with_spend_bucket as (
     -- Consider: Should thresholds be lower since immunization patients may have lower overall costs?
     select
         pcs.person_id,
-        pcs.immunization_id,
         pcs.care_setting,
         pcs.care_setting_detail,
         pcs.total_paid,
@@ -82,7 +80,7 @@ with_spend_bucket as (
         -- end as spend_bucket
     from patient_care_setting_spend pcs
     inner join patient_total_spend pts
-        on pcs.person_id, = pts.person_id
+        on pcs.person_id = pts.person_id
 )
 
 select * from with_spend_bucket
