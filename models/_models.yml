@@ -1,11 +1,23 @@
 version: 2
 
 models:
-# Empty placeholder tables
   - name: condition
     config:
       schema: input_layer
       tags: tuva_demo
+    columns:
+      - name: normalized_code
+        description: Normalized diagnosis code
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: normalized_code_type
+        description: Code system type (e.g., icd-10-cm)
+        tests:
+          - not_null:
+              config:
+                severity: warn
 
   - name: encounter
     config:

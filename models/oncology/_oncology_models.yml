@@ -9,14 +9,44 @@ models:
     columns:
       - name: condition_id
         description: Unique identifier for the condition
+        tests:
+          - not_null:
+              config:
+                severity: warn
       - name: person_id
         description: Patient identifier
+        tests:
+          - not_null:
+              config:
+                severity: warn
       - name: normalized_code
         description: Normalized ICD-10 diagnosis code
+        tests:
+          - not_null:
+              config:
+                severity: warn
+          - dbt_utils.not_empty_string:
+              config:
+                severity: warn
+      - name: normalized_code_type
+        description: Code type (should be icd-10-cm)
+        tests:
+          - not_null:
+              config:
+                severity: warn
+          - accepted_values:
+              arguments:
+                values: ['icd-10-cm']
+              config:
+                severity: warn
       - name: cancer_type
         description: >
           Cancer type classification (e.g., Breast, Hematologic, Digestive Organs)
           derived from ICD-10 code ranges
+        tests:
+          - not_null:
+              config:
+                severity: warn
 
   - name: stg_oncology_claims
     description: >
